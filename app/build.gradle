@@ -56,6 +56,8 @@ dependencies {
     implementation 'androidx.compose.material:material:1.4.1'
     implementation 'com.github.weliem:blessed-android:2.4.2'
     implementation 'androidx.core:core-ktx:1.10.0'
+    implementation 'com.microsoft.onnxruntime:onnxruntime-android:latest.release'
+    implementation "androidx.compose.foundation:foundation-layout:$compose_ui_version"
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'

@@ -1,28 +1,21 @@
 package com.masterproef.masterthesistvapp.model
 
 import android.bluetooth.le.ScanResult
+import com.masterproef.masterthesistvapp.model.Calculator.calculateDistance
 import com.welie.blessed.BluetoothPeripheral
 
-class Peripheral(peripheral: BluetoothPeripheral ,scanResult: ScanResult) {
+data class Peripheral(private val peripheral: BluetoothPeripheral, private val scanResult: ScanResult) {
 
-    var connected: Boolean = false
+    var deviceName: String = peripheral.name
+    var deviceAddress: String = peripheral.address
 
-    var deviceName: String
-    val deviceAddress: String
     var userId: Int? = null
 
-    var txPower: Int
-    var rssi: Int
+    var lastAdvertisementTimestamp: Long? = scanResult.timestampNanos
+    var txPower: Int = scanResult.txPower
+    var rssi: Int = scanResult.rssi
+    var distance: Double = calculateDistance(scanResult.txPower, scanResult.rssi)
 
-    var timestamp: Long? = null
-    var pp: Float? = null
-
-    init {
-        this.deviceName = peripheral.name
-        this.deviceAddress = peripheral.address
-
-        this.txPower = scanResult.txPower
-        this.rssi = scanResult.rssi
-    }
-
+    var lastPeakToPeakTimestamp: Long? = null
+    var peakToPeakArray = mutableListOf<Float>()
 }
