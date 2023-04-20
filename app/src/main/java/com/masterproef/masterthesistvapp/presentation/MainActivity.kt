@@ -5,7 +5,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -18,7 +20,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import com.masterproef.masterthesistvapp.viewmodel.MainViewModel
 import com.masterproef.masterthesistvapp.model.Peripheral
-import com.masterproef.masterthesistvapp.model.PeripheralManager
 
 class MainActivity : ComponentActivity() {
 
@@ -51,7 +52,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun PeripheralList(viewModel: MainViewModel) {
 
-    Column {
+    Row(
+        modifier = Modifier
+            .horizontalScroll(rememberScrollState())) {
         for (peripheral in viewModel.peripherals.values) {
             PeripheralElement(peripheral)
         }
@@ -59,13 +62,13 @@ fun PeripheralList(viewModel: MainViewModel) {
 
 }
 
-
 @Composable
 fun PeripheralElement(peripheral: Peripheral) {
     Card(
         elevation = 5.dp,
         modifier = Modifier
-            .fillMaxWidth()
+            .width(500.dp)
+            .fillMaxHeight()
             .padding(16.dp)
     ) {
         Column(
@@ -87,12 +90,14 @@ fun PeripheralElement(peripheral: Peripheral) {
 
 
             TitleRow("Raw Presence Data")
+            InfoRow("Last Advertisement timestamp", peripheral.lastAdvertisementTimestamp.toString())
             InfoRow("RSSI", peripheral.rssi.toString())
             InfoRow("Tx power", peripheral.txPower.toString())
             InfoRow("Distance", peripheral.distance.toString() + " meters")
 
             TitleRow("Raw HRV Data")
             InfoRow("Last timestamp", peripheral.lastPeakToPeakTimestamp.toString())
+            InfoRow("Array Size", peripheral.arrayLength.toString())
             //InfoRow("Last PP value", peripheral.peakToPeakArray[0].toString())
         }
     }
@@ -120,7 +125,7 @@ fun InfoRow(title: String, value: String) {
                 fontWeight = FontWeight.Bold,
                 color = Color.Gray
             ),
-            modifier = Modifier.width(120.dp)
+            modifier = Modifier.width(150.dp)
         )
         Text(
             text = value,

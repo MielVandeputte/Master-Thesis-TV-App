@@ -3,9 +3,8 @@ package com.masterproef.masterthesistvapp.model
 import android.bluetooth.le.ScanResult
 import android.content.Context
 import androidx.compose.runtime.mutableStateMapOf
-import com.masterproef.masterthesistvapp.model.Calculator.calculateDistance
+import com.masterproef.masterthesistvapp.model.PresenceDetector.calculateDistance
 import com.welie.blessed.BluetoothPeripheral
-import com.welie.blessed.ConnectionState
 
 object PeripheralManager: BleCallback {
 
@@ -18,29 +17,31 @@ object PeripheralManager: BleCallback {
         if (peripheral != null) {
             peripheral.rssi = scanResult.rssi
             peripheral.txPower = scanResult.txPower
+            peripheral.lastAdvertisementTimestamp = scanResult.timestampNanos
             peripheral.distance = calculateDistance(scanResult.txPower, scanResult.rssi)
             peripherals.remove(bluetoothPeripheral.address)
 
-        } else if (bluetoothPeripheral.state == ConnectionState.CONNECTED){
+        } else {
             peripherals.forEach { (key, value) ->
                 run {
                     if (value.deviceName == bluetoothPeripheral.name) {
                         peripheral = peripherals[key]
                         peripheral!!.rssi = scanResult.rssi
                         peripheral!!.txPower = scanResult.txPower
-                        peripheral!!.distance = calculateDistance(scanResult.txPower, scanResult.rssi)
+                        peripheral!!.lastAdvertisementTimestamp = scanResult.timestampNanos
+                        peripheral!!.distance =
+                            calculateDistance(scanResult.txPower, scanResult.rssi)
                         peripherals.remove(bluetoothPeripheral.address)
                     }
                 }
             }
+        }
 
-        }else {
+        if(peripheral == null) {
             peripheral = Peripheral(bluetoothPeripheral, scanResult)
         }
 
-        if(peripheral != null) {
-            peripherals[bluetoothPeripheral.address] = peripheral!!
-        }
+        peripherals[bluetoothPeripheral.address] = peripheral!!
     }
 
     override fun onPeripheralDisconnected(bluetoothPeripheral: BluetoothPeripheral) {
@@ -62,7 +63,6 @@ object PeripheralManager: BleCallback {
         val peripheral = peripherals[bluetoothPeripheral.address]
 
         if(peripheral != null) {
-
             if((peripheral.lastPeakToPeakTimestamp != null) && (timestamp - peripheral.lastPeakToPeakTimestamp!! < 1000)) {
                 peripheral.peakToPeakArray = mutableListOf(pp)
             }else{
@@ -70,11 +70,11 @@ object PeripheralManager: BleCallback {
             }
 
             peripheral.lastPeakToPeakTimestamp = timestamp
+            peripheral.arrayLength = peripheral.peakToPeakArray.size
 
             peripherals.remove(bluetoothPeripheral.address)
             peripherals[bluetoothPeripheral.address] = peripheral
         }
-
     }
 
     fun enableBle(context: Context){

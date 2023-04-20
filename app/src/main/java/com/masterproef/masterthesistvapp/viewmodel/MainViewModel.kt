@@ -16,7 +16,4 @@ class MainViewModel : ViewModel() {
         PeripheralManager.disableBle()
     }
 
-
-
-
 }
